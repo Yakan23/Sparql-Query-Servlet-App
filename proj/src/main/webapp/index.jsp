@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Sparql Query</title>
+	<title class="title">Sparql Query</title>
 	<script src="./RequestHandler.js"></script>
     	<style>
+		.title{
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			height: 100vh;
+		}
 		.container {
 			display: flex;
 			flex-direction: column;

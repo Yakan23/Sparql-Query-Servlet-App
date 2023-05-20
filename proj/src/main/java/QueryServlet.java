@@ -5,6 +5,15 @@ import java.io.*;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.w3c.dom.Document;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.xml.sax.InputSource;
+import java.io.ByteArrayOutputStream;
+import java.io.StringReader;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
+import java.io.IOException;
 
 public class QueryServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -18,10 +27,26 @@ public class QueryServlet extends HttpServlet {
         Query query = QueryFactory.create(queryStr);
         QueryExecution qe = QueryExecutionFactory.create(query, model);
         ResultSet results = qe.execSelect();
-        ByteArrayOutputStream sw = new ByteArrayOutputStream();
-        ResultSetFormatter.outputAsXML(sw, results);
-        String xml = sw.toString();
-        request.setAttribute("xml", xml);
+        try {
+            ByteArrayOutputStream sw = new ByteArrayOutputStream();
+            ResultSetFormatter.outputAsXML(sw, results);
+            String xml = sw.toString();
+
+            // Parse the XML string into a Document object
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            InputSource inputSource = new InputSource(new StringReader(xml));
+            Document document = builder.parse(inputSource);
+
+            // Store the Document object in the request attribute
+            request.setAttribute("xml", document);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            // Handle the exception appropriately (e.g., logging, error response)
+            e.printStackTrace();
+            // Optionally, redirect or forward to an error page
+            // request.getRequestDispatcher("error.jsp").forward(request, response);
+        }
+
         // qe.close();
         RequestDispatcher rd = request.getRequestDispatcher("Results.jsp");
 

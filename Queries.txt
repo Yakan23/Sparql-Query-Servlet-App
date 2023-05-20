@@ -1,0 +1,144 @@
+SELECT ?author_name ?book_title
+WHERE {
+	?author a uri:Author.
+	?author uri:person_name ?author_name.
+	?author uri:writes ?book.
+	?book uri:title ?book_title.
+}
+ORDER BY ASC (?author_name) 
+_______________________________________________________________________
+_______________________________________________________________________
+
+SELECT ?borrower_name (COUNT(?book) AS ?num_books)
+WHERE {
+ ?borrower a uri:Borrower.
+ ?book a uri:Book.
+ ?library a uri:Library.
+?borrower uri:borrows ?book.
+?book uri:title ?book_title.
+?book uri:available_in ?library.
+?borrower uri:person_name ?borrower_name
+}
+GROUP BY ?borrower_name
+HAVING (?num_books >= 2)
+ORDER BY ASC (?num_books)
+_______________________________________________________________________
+_______________________________________________________________________
+
+SELECT DISTINCT ?book_title 
+WHERE{
+?book a uri:Book.
+?library a uri:Library.
+?book uri:available_in ?library.
+?library uri:library_name ?library_name.
+?book uri:title ?book_title.
+FILTER regex (?library_name ,"Library at the Dock","i" )
+} 
+_______________________________________________________________________
+_______________________________________________________________________
+
+SELECT DISTINCT ?book_title 
+WHERE {
+?book a uri:Book.
+?book uri:title ?book_title.
+?library a uri:Library.
+?book uri:available_in ?library
+FILTER REGEX (?book_title, "Girl" , "i").
+}
+_______________________________________________________________________
+_______________________________________________________________________
+
+SELECT ?book_title ?book_isbn
+WHERE {
+?book a uri:Book.
+?book uri:title ?book_title.
+?book uri:isbn ?book_isbn.
+?library a uri:Library.
+?book uri:available_in ?library
+
+FILTER REGEX (?book_isbn, "5$" , "i").
+}
+ORDER BY ASC (?book_isbn)
+_______________________________________________________________________
+_______________________________________________________________________
+
+SELECT ?book_title 
+WHERE {
+?borrower a uri:Borrower.
+?borrower uri:borrows ?book.
+?book a uri:Book.
+?book uri:title ?book_title.
+?borrower uri:person_name ?borrower_name.
+FILTER ( ?borrower_name = "Adam Wilson" )
+}
+ORDER BY ASC (?book_title) 
+_______________________________________________________________________
+_______________________________________________________________________
+
+SELECT ?borrower_name ?book_title
+WHERE {
+?borrower a uri:Borrower.
+?borrower uri:borrows ?book.
+?book a uri:Book.
+?book uri:title ?book_title.
+?borrower uri:person_name ?borrower_name.
+
+FILTER ( ?book_title = "1984")
+}
+_______________________________________________________________________
+_______________________________________________________________________
+
+SELECT ?author_name (COUNT (?book) AS ?book_count)
+WHERE {
+	?book a uri:Book.
+	?author a uri:Author.
+	?library a uri:Library.
+	?book uri:available_in ?library.
+	?author uri:writes ?book.
+	?author uri:person_name ?author_name.
+}
+GROUP BY ?author_name 
+ORDER BY DESC ( ?book_count )
+_______________________________________________________________________
+_______________________________________________________________________
+
+SELECT DISTINCT ?book_title 
+WHERE{
+{
+	?book a uri:Book.
+	?library a uri:Library.
+	?book uri:available_in ?library.
+	?library uri:library_name ?library_name.
+	?book uri:title ?book_title.
+	FILTER (?library_name = "Library at the Dock" )
+}
+UNION 
+{
+	?book a uri:Book.
+	?library a uri:Library.
+	?book uri:available_in ?library.
+	?library uri:library_name ?library_name.
+	?book uri:title ?book_title.
+	FILTER (?library_name = "The London Library")
+ }}
+_______________________________________________________________________
+_______________________________________________________________________
+
+SELECT DISTINCT ?author_name ?book_title
+WHERE {
+  	?author a uri:Author.
+  	?book a uri:Book.
+	?author uri:writes ?book.
+	?author uri:person_name ?author_name
+FILTER REGEX (?author_name, "^J" , "i")
+OPTIONAL {
+	?author uri:writes ?book.
+	?book uri:title ?book_title 
+	FILTER REGEX (?book_title, "and" , "i")
+}
+OPTIONAL {
+	?author uri:writes ?book.
+	?book uri:title ?book_title 
+	FILTER REGEX (?book_title, "the" , "i")
+}
+}
